@@ -1,10 +1,10 @@
-#include <iostream>
-#include <cmath>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-using namespace std; 
+#include "shader/shader.h"
+
+#include <iostream>
+#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -12,23 +12,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH  = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aColor;\n"
-    "out vec3 theColor;\n"
-    "void main() {\n"
-    "   gl_Position = vec4(aPos, 1.0);"
-    "   theColor = aColor;\n"
-    "}\n\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec3 theColor;\n"
-    "void main() {\n"
-    "   FragColor = vec4(theColor, 1.0);\n"
-    "}\n\0";
-
 
 int main() {
     // glfw: initialize and configure
@@ -40,7 +23,7 @@ int main() {
     // glfw window creation
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH,SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
-        cout << "Failed to create GLFW window" << endl;
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -49,33 +32,15 @@ int main() {
 
     // glad: load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cout << "Failed to initialize GLAD" << endl;
+        std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
 
     // build and compile the shader program
-    // vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);    
-    
-    // fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // link shaders
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader ourShader("include/shader/shader.vs", "include/shader/shader.fs");
 
     // set up the vertex data and buffers and configure vertex attributes
-
     float firstTriangle[] = {
         // positions       colors
         0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 
@@ -129,7 +94,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // for the first triangle, use first shader
-        glUseProgram(shaderProgram);
+        ourShader.use();
 
         // render the triangles
         glBindVertexArray(VAOs[0]);
@@ -146,7 +111,6 @@ int main() {
     // de-allocate resources once they've outlived their purpose
     glDeleteVertexArrays(2, VAOs);
     glDeleteBuffers(2, VBOs);
-    glDeleteProgram(shaderProgram);
     
     // glfw: terminate, clearing all previously allocated GLFW resources
     glfwTerminate();
