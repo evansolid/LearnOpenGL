@@ -17,6 +17,9 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH  = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+// stores the mix value for the textures
+float mixValue = 0.2f;
+
 int main() {
     // glfw: initialize and configure
     glfwInit();
@@ -44,10 +47,9 @@ int main() {
     Shader ourShader("include/shader/shader.vs", "include/shader/shader.fs");
 
     // set up the vertex data and buffers and configure vertex attributes
-
     float vertices[] = {
         // positions          // colors            // texture coords
-         0.75f,  0.75f, 0.0f,    1.0f, 0.0f, 0.0f,    1.0f, 1.0f, // top right
+         0.5f,  0.5f, 0.0f,    1.0f, 0.0f, 0.0f,    1.0f, 1.0f, // top right
          0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 0.0f, // bottom right
         -0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, // bottom left
         -0.5f,  0.5f, 0.0f,    1.0f, 1.0f, 0.0f,    0.0f, 1.0f  // top left
@@ -79,10 +81,11 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // loading and creating a texture;
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // all of the next operations on GL_TEXTURE_2D now have effect on this texture
+    // loading and creating textures;
+    unsigned int texture1, texture2;
+    //texture 1
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); // all of the next operations on GL_TEXTURE_2D now have effect on this texture
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -91,6 +94,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flop loaded texture on the y axis
     unsigned char *data = stbi_load("C:/Users/mreva/Code/logl/include/images/flower_bee.jpg", &width, &height, &nrChannels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -99,6 +103,30 @@ int main() {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
+
+    // loading and creating a second texture
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set the texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and mipmaps
+    data = stbi_load("C:/Users/mreva/Code/logl/include/images/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    // tell opengl for each sampler to which texture unit it belongs to
+    ourShader.use();
+    ourShader.setInt("texture1", 0);
+    ourShader.setInt("texture2", 1);
 
     // rendering loop while the window is open
     while(!glfwWindowShouldClose(window)) {
@@ -109,8 +137,14 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // bind the texture
-        glBindTexture(GL_TEXTURE_2D, texture);
+        // bind the textures on texture units
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        
+        // set the texture mix value in the shader
+        ourShader.setFloat("mixValue", mixValue);
 
         // render the rectangle with the image
         ourShader.use();
@@ -137,6 +171,12 @@ int main() {
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        mixValue += 0.001f;
+    }    
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        mixValue -= 0.001f;
     }
 }
 
