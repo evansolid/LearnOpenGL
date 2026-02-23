@@ -1,0 +1,14 @@
+[
+{
+  "directory": "C:/Users/mreva/Code/logl/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/cutable.dir/includes_CXX.rsp -g -o CMakeFiles\\cutable.dir\\src\\main.cpp.obj -c C:\\Users\\mreva\\Code\\logl\\src\\main.cpp",
+  "file": "C:/Users/mreva/Code/logl/src/main.cpp",
+  "output": "CMakeFiles/cutable.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/mreva/Code/logl/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe  @CMakeFiles/cutable.dir/includes_C.rsp -g -o CMakeFiles\\cutable.dir\\src\\glad.c.obj -c C:\\Users\\mreva\\Code\\logl\\src\\glad.c",
+  "file": "C:/Users/mreva/Code/logl/src/glad.c",
+  "output": "CMakeFiles/cutable.dir/src/glad.c.obj"
+}
+]

@@ -148,8 +148,8 @@ int main() {
     unsigned int texture1, texture2;
     std::filesystem::path image1RelativePath = "include/images/flower_bee.jpg";
     std::filesystem::path image2RelativePath = "include/images/awesomeface.png";
-    std::filesystem::path image1AbsolutePath = std::filesystem::absolute(image1RelativePath);
-    std::filesystem::path image2AbsolutePath = std::filesystem::absolute(image2RelativePath);
+    std::filesystem::path image1AbsolutePath = std::filesystem::canonical(image1RelativePath);
+    std::filesystem::path image2AbsolutePath = std::filesystem::canonical(image2RelativePath);
 
     //texture 1
     glGenTextures(1, &texture1);
